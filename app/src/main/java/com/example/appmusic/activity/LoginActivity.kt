@@ -3,6 +3,7 @@ package com.example.appmusic.activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
@@ -31,7 +32,7 @@ import com.example.appmusic.R
 import com.example.appmusic.databinding.ActivityLoginBinding
 import com.example.appmusic.ui.theme.AppMusicTheme
 import com.google.firebase.auth.FirebaseAuth
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

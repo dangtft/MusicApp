@@ -3,6 +3,7 @@ package com.example.appmusic.activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
@@ -40,7 +41,7 @@ import com.example.appmusic.ui.theme.AppMusicTheme
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 
-class RegisterActivity : AppCompatActivity() {
+class RegisterActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,8 +124,8 @@ fun RegisterScreen(auth: FirebaseAuth){
             )
             Spacer(modifier = Modifier.height(16.dp))
             BasicTextField(
-                value = password.value,
-                onValueChange = { password.value = it },
+                value = confirmPassword.value,
+                onValueChange = { confirmPassword.value = it },
                 modifier = Modifier
                     .background(Color.White, shape = RoundedCornerShape(25.dp))
                     .padding(16.dp)
@@ -136,7 +137,7 @@ fun RegisterScreen(auth: FirebaseAuth){
                         contentAlignment = Alignment.CenterStart,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
-                        if (password.value.isEmpty()) {
+                        if (confirmPassword.value.isEmpty()) {
                             Text("Confirm Password", color = Color.Gray)
                         }
                         innerTextField()
@@ -206,6 +207,14 @@ fun RegisterScreen(auth: FirebaseAuth){
 
             
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RegisterScreenPreview() {
+    AppMusicTheme {
+        RegisterScreen(FirebaseAuth.getInstance())
     }
 }
 

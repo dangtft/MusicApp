@@ -1,7 +1,9 @@
 package com.example.appmusic.activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,20 +27,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appmusic.R
+import com.example.appmusic.ui.theme.AppMusicTheme
 
-class IntroActivity : AppCompatActivity() {
+class IntroActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_intro)
-
-//        setContent {
-//            AppMusicTheme {
-//                IntroScreen {
-//                    startActivity(Intent(this@IntroActivity, LoginActivity::class.java))
-//                }
-//            }
-//        }
+        setContent {
+            AppMusicTheme {
+                IntroScreen {
+                    startActivity(Intent(this@IntroActivity, LoginActivity::class.java))
+                }
+            }
+        }
     }
 }
 
