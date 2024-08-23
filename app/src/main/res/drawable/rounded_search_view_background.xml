@@ -1,0 +1,10 @@
+<!-- res/drawable/rounded_search_view_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/white" />
+    <corners android:radius="50dp" /> <!-- Tăng giá trị radius để bo tròn hơn -->
+    <padding
+        android:left="20dp"
+        android:right="20dp"
+        android:top="20dp"
+        android:bottom="20dp"/>
+</shape>

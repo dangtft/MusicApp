@@ -13,14 +13,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -28,25 +29,78 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
+import com.example.appmusic.MainActivity
 import com.example.appmusic.R
 import com.example.appmusic.databinding.ActivityLoginBinding
 import com.example.appmusic.ui.theme.AppMusicTheme
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
+
 class LoginActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
+    private val RC_SIGN_IN = 9001
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
+
         setContent {
             AppMusicTheme {
-                LoginScreen(auth)
+                LoginScreen(auth,onGoogleSignInClick = { signInWithGoogle() })
             }
         }
+
+    }
+    private fun signInWithGoogle() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        val googleSignInClient = GoogleSignIn.getClient(this, gso)
+        val signInIntent = googleSignInClient.signInIntent
+        startActivityForResult(signInIntent, RC_SIGN_IN)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                firebaseAuthWithGoogle(account)
+            } catch (e: ApiException) {
+                Toast.makeText(this, "Google sign in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
+        val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+//                    val user = auth.currentUser
+//                    val email = user?.email
+//                    if (email == "haidang29072000@gmail.com") {
+//                        startActivity(Intent(this, MainActivity::class.java))
+//                    } else {
+//                        startActivity(Intent(this, MainActivity::class.java))
+//                    }
+//                    finish()
+                    startActivity(Intent(this, MainActivity::class.java))
+                } else {
+                    Toast.makeText(this, "Google sign in failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 }
 
 @Composable
-fun LoginScreen(auth: FirebaseAuth) {
+fun LoginScreen(auth: FirebaseAuth, onGoogleSignInClick: () -> Unit) {
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val context = LocalContext.current
@@ -117,7 +171,14 @@ fun LoginScreen(auth: FirebaseAuth) {
                 auth.signInWithEmailAndPassword(email.value, password.value)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
+//                            val user = auth.currentUser
+//                            val email = user?.email
+//                            if (email == "haidang29072000@gmail.com") {
+//                                context.startActivity(Intent(context, MainActivity::class.java))
+//                            } else {
+//                                context.startActivity(Intent(context, MainActivity::class.java))
+//                            }
+                            context.startActivity(Intent(context, MainActivity::class.java))
 
                         } else {
                             Toast.makeText(context, "Login Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
@@ -143,7 +204,7 @@ fun LoginScreen(auth: FirebaseAuth) {
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                IconButton(onClick = { /* Handle Google login */ }) {
+                IconButton(onClick = onGoogleSignInClick) {
                     Icon(
                         painter = painterResource(id = R.drawable.google_brands_solid),
                         contentDescription = "Google",

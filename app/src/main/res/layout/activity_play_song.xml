@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".activity.PlaySongActivity">
+
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#F3C4E4"
+        android:padding="16dp"
+        android:paddingTop="0dp"
+        android:elevation="8dp"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+        <ImageView
+            android:id="@+id/imageView6"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="start"
+            android:src="@drawable/music_solid" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/imageView4"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/bars_solid" />
+
+    </LinearLayout>
+
+    <!-- Album art and waveform visualization -->
+
+    <!-- Song title and artist name -->
+
+    <ImageView
+        android:id="@+id/songImage"
+        android:layout_width="328dp"
+        android:layout_height="324dp"
+        android:layout_marginTop="52dp"
+        android:src="@drawable/lovepik_com_380591529_listening_to_music_vector_cartoon_sticker"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.412"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBar" />
+
+    <TextView
+        android:id="@+id/songTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SONG TITLE"
+        android:textColor="@android:color/black"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/songImage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/artistName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LOREM IPSUM"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/songTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Music progress bar -->
+    <!-- Start Time TextView -->
+    <TextView
+        android:id="@+id/startTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1:20"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/artistName"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"/>
+
+    <!-- SeekBar -->
+    <SeekBar
+        android:id="@+id/progressBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:progressTint="@color/main_blue"
+        android:thumbTint="@color/main_blue"
+        app:layout_constraintTop_toTopOf="@id/startTime"
+        app:layout_constraintStart_toEndOf="@id/startTime"
+        app:layout_constraintEnd_toStartOf="@id/endTime"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"/>
+
+    <!-- End Time TextView -->
+    <TextView
+        android:id="@+id/endTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="5:10"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toTopOf="@id/startTime"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="32dp"/>
+
+    <!-- Play control buttons -->
+    <LinearLayout
+        android:id="@+id/playControls"
+        android:layout_width="371dp"
+        android:layout_height="80dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/play_controls_background"
+        android:elevation="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:weightSum="5"
+        android:layout_marginBottom="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteY="618dp">
+
+        <ImageView
+            android:id="@+id/rotate"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:contentDescription="TODO"
+            android:src="@drawable/rotate_solid"
+            tools:ignore="MissingConstraints"
+            tools:layout_editor_absoluteX="32dp"
+            tools:layout_editor_absoluteY="548dp" />
+
+        <Space
+            android:layout_width="50dp"
+            android:layout_height="0dp">
+
+        </Space>
+
+        <ImageView
+            android:id="@+id/previous"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:contentDescription="TODO"
+            android:src="@drawable/backward_solid"
+            tools:ignore="MissingConstraints"
+            tools:layout_editor_absoluteX="118dp"
+            tools:layout_editor_absoluteY="548dp" />
+
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="0dp">
+        </Space>
+
+        <ImageView
+            android:id="@+id/play"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:contentDescription="TODO"
+            android:src="@drawable/circle_pause_solid"
+            tools:ignore="MissingConstraints"
+            tools:layout_editor_absoluteX="183dp"
+            tools:layout_editor_absoluteY="545dp" />
+
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="0dp">
+
+        </Space>
+
+        <ImageView
+            android:id="@+id/next"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:contentDescription="TODO"
+            android:src="@drawable/forward_solid"
+            tools:ignore="MissingConstraints"
+            tools:layout_editor_absoluteX="272dp"
+            tools:layout_editor_absoluteY="545dp" />
+
+        <Space
+            android:layout_width="50dp"
+            android:layout_height="0dp">
+
+        </Space>
+
+        <ImageView
+            android:id="@+id/shuffle"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:contentDescription="TODO"
+            android:src="@drawable/shuffle_solid"
+            tools:ignore="MissingConstraints"
+            tools:layout_editor_absoluteX="340dp"
+            tools:layout_editor_absoluteY="548dp" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

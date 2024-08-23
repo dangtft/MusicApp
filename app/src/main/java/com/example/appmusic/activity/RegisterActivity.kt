@@ -38,25 +38,67 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appmusic.R
 import com.example.appmusic.ui.theme.AppMusicTheme
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.android.gms.auth.api.Auth
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
 
 class RegisterActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
-
+    private val RC_SIGN_IN = 9001
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
         setContent {
             AppMusicTheme {
-                RegisterScreen(auth)
+                RegisterScreen(auth,::signInWithGoogle)
             }
         }
+    }
+    private fun signInWithGoogle() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        val googleSignInClient = GoogleSignIn.getClient(this, gso)
+        val signInIntent = googleSignInClient.signInIntent
+        startActivityForResult(signInIntent, RC_SIGN_IN)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                firebaseAuthWithGoogle(account)
+            } catch (e: ApiException) {
+                Toast.makeText(this, "Google sign in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
+        val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Google sign in successful", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                } else {
+                    Toast.makeText(this, "Google sign in failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 }
 
 @Composable
-fun RegisterScreen(auth: FirebaseAuth){
+fun RegisterScreen(auth: FirebaseAuth, onGoogleSignInClick:() -> Unit){
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val confirmPassword = remember { mutableStateOf("") }
@@ -195,7 +237,7 @@ fun RegisterScreen(auth: FirebaseAuth){
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                IconButton(onClick = { /* Handle Google login */ }) {
+                IconButton(onClick = onGoogleSignInClick ){
                     Icon(
                         painter = painterResource(id = R.drawable.google_brands_solid),
                         contentDescription = "Google",
@@ -204,8 +246,6 @@ fun RegisterScreen(auth: FirebaseAuth){
                     )
                 }
             }
-
-            
         }
     }
 }
@@ -214,7 +254,7 @@ fun RegisterScreen(auth: FirebaseAuth){
 @Composable
 fun RegisterScreenPreview() {
     AppMusicTheme {
-        RegisterScreen(FirebaseAuth.getInstance())
+        RegisterScreen(FirebaseAuth.getInstance(),{})
     }
 }
 

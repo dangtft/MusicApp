@@ -1,0 +1,19 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Item cho bóng đổ -->
+    <item android:left="0dp" android:right="0dp" android:top="4dp" android:bottom="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#80000000"/> <!-- Màu bóng đổ -->
+            <corners android:radius="30dp"/> <!-- Đường viền của bóng -->
+            <size android:width="200dp" android:height="200dp"/> <!-- Kích thước bóng đổ, thay đổi theo nhu cầu -->
+        </shape>
+    </item>
+
+    <!-- Item cho hình dạng chính -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white"/> <!-- Màu nền -->
+            <corners android:radius="30dp"/> <!-- Đường viền -->
+            <padding android:left="18dp" android:top="10dp" android:right="16dp" android:bottom="8dp"/>
+        </shape>
+    </item>
+</layer-list>
