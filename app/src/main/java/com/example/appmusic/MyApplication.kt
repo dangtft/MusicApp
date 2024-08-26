@@ -19,10 +19,6 @@ class MyApplication : Application() {
         }
         cursor.close()
 
-        val songCursor = db.rawQuery("SELECT COUNT(*) FROM ${SongsDatabaseHelper.TABLE_SONGS}", null)
-        if (songCursor.moveToFirst() && songCursor.getInt(0) == 0) {
-            dbHelper.insertSampleData(db)
-        }
-        songCursor.close()
+
     }
 }

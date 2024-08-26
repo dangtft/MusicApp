@@ -21,24 +21,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-
-        <ImageView
-            android:id="@+id/imageView6"
+        <ImageButton
+            android:id="@+id/btn_back"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_gravity="start"
-            android:src="@drawable/music_solid" />
+            android:src="@drawable/icons8_back_50"
+            android:background="@color/main_pink">
 
+        </ImageButton>
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <ImageView
-            android:id="@+id/imageView4"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/bars_solid" />
 
     </LinearLayout>
 

@@ -32,12 +32,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appmusic.activity.PlaySongActivity
-import com.example.appmusic.activity.RegisterScreen
 import com.example.appmusic.database.Album
 import com.example.appmusic.database.Song
 import com.example.appmusic.database.SongsDatabaseHelper
 import com.example.appmusic.ui.theme.AppMusicTheme
-import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +53,7 @@ class MainActivity : ComponentActivity() {
     fun MusicAppLayout(databaseHelper: SongsDatabaseHelper) {
         val context = LocalContext.current
         val db = remember { databaseHelper.readableDatabase }
+
         val cursor = remember { databaseHelper.getSongs(db) }
         val songs by remember { mutableStateOf(cursorToSongs(cursor)) }
 
@@ -163,7 +162,7 @@ class MainActivity : ComponentActivity() {
                                     .padding(8.dp)
                             ) {
                                 Image(
-                                    painter = painterResource(id = album.coverImageResId),
+                                    painter = painterResource(id = album.albumImageResId),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .height(200.dp)
@@ -227,10 +226,11 @@ class MainActivity : ComponentActivity() {
                                     // Navigate to PlaySongActivity with the selected song
                                     val intent =
                                         Intent(context, PlaySongActivity::class.java).apply {
-                                            putExtra("SONG_TITLE", song.title)
-                                            putExtra("SONG_DURATION", song.duration)
+                                            putExtra("COLUMN_SONG_NAME", song.songName)
+                                            putExtra("COLUMN_SONG_ARTIST", song.artist)
+                                            putExtra("COLUMN_SONG_DURATION", song.duration)
                                             putExtra("COLUMN_SONG_FILE_RES_ID", song.songFileResId)
-                                            putExtra("SONG_IMAGE_RES_ID", song.imageResId)
+                                            putExtra("COLUMN_SONG_IMAGE_RES_ID", song.imageResId)
                                         }
                                     context.startActivity(intent)
                                 }
@@ -246,7 +246,7 @@ class MainActivity : ComponentActivity() {
                             Spacer(modifier = Modifier.width(8.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = song.title,
+                                    text = song.songName,
                                     fontSize = 16.sp,
                                     color = colorResource(id = R.color.main_pink),
                                     modifier = Modifier.padding(8.dp)
@@ -347,7 +347,8 @@ class MainActivity : ComponentActivity() {
             val duration = cursor.getInt(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_SONG_DURATION))
             val songResId = cursor.getInt(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_SONG_FILE_RES_ID))
             val imageResId = cursor.getInt(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_SONG_IMAGE_RES_ID))
-            songs.add(Song(id, title,artist, duration,songResId, imageResId))
+            val albumId = cursor.getInt(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_ALBUM_ID))
+            songs.add(Song(id, title,artist, duration,songResId, imageResId,albumId))
         }
         cursor.close()
         return songs
@@ -364,13 +365,5 @@ class MainActivity : ComponentActivity() {
         return albums
     }
 
-@Preview(showBackground = true)
-@Composable
-fun MusicScreenPreview() {
-    AppMusicTheme {
-        val context = LocalContext.current
-        val databaseHelper = SongsDatabaseHelper(context)
-        MusicAppLayout(databaseHelper = databaseHelper)
-    }
-}
+
 

@@ -83,15 +83,8 @@ class LoginActivity : ComponentActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-//                    val user = auth.currentUser
-//                    val email = user?.email
-//                    if (email == "haidang29072000@gmail.com") {
-//                        startActivity(Intent(this, MainActivity::class.java))
-//                    } else {
-//                        startActivity(Intent(this, MainActivity::class.java))
-//                    }
-//                    finish()
                     startActivity(Intent(this, MainActivity::class.java))
+                    finish()
                 } else {
                     Toast.makeText(this, "Google sign in failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
@@ -171,13 +164,6 @@ fun LoginScreen(auth: FirebaseAuth, onGoogleSignInClick: () -> Unit) {
                 auth.signInWithEmailAndPassword(email.value, password.value)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-//                            val user = auth.currentUser
-//                            val email = user?.email
-//                            if (email == "haidang29072000@gmail.com") {
-//                                context.startActivity(Intent(context, MainActivity::class.java))
-//                            } else {
-//                                context.startActivity(Intent(context, MainActivity::class.java))
-//                            }
                             context.startActivity(Intent(context, MainActivity::class.java))
 
                         } else {

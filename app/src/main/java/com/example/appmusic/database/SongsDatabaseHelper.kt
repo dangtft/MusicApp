@@ -59,6 +59,7 @@ class SongsDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+
         db.execSQL("DROP TABLE IF EXISTS $TABLE_SONGS")
         db.execSQL("DROP TABLE IF EXISTS $TABLE_ALBUMS")
         onCreate(db)
@@ -86,20 +87,6 @@ class SongsDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
         return db.insert(TABLE_SONGS, null, values).toInt()
     }
 
-    // Retrieve all songs from the database
-    fun getSongs(db: SQLiteDatabase): Cursor {
-        val query = """
-            SELECT $COLUMN_SONG_ID,
-                   $COLUMN_SONG_NAME, 
-                   $COLUMN_SONG_ARTIST,
-                   $COLUMN_SONG_DURATION, 
-                   $COLUMN_SONG_FILE_RES_ID,
-                   $COLUMN_SONG_IMAGE_RES_ID
-            FROM $TABLE_SONGS
-        """.trimIndent()
-
-        return db.rawQuery(query, null)
-    }
 
     // Insert sample data
     fun insertSampleData(db: SQLiteDatabase) {
@@ -125,4 +112,19 @@ class SongsDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
         """
         return db.rawQuery(query, null)
     }
+    // Retrieve all songs from the database
+    public fun getSongs(db: SQLiteDatabase): Cursor {
+        val query = """
+            SELECT $COLUMN_SONG_ID,
+                   $COLUMN_SONG_NAME, 
+                   $COLUMN_SONG_ARTIST,
+                   $COLUMN_SONG_DURATION, 
+                   $COLUMN_SONG_FILE_RES_ID,
+                   $COLUMN_SONG_IMAGE_RES_ID
+            FROM $TABLE_SONGS
+        """.trimIndent()
+
+        return db.rawQuery(query, null)
+    }
+
 }

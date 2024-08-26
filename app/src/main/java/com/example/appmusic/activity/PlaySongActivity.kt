@@ -6,6 +6,7 @@ import com.example.appmusic.R
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -21,6 +22,7 @@ class PlaySongActivity : ComponentActivity() {
     private lateinit var seekBar: SeekBar
     private lateinit var startTimeTextView: TextView
     private lateinit var endTimeTextView: TextView
+    private  lateinit var backButton : ImageButton
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -45,6 +47,7 @@ class PlaySongActivity : ComponentActivity() {
         previousButton = findViewById(R.id.previous)
         shuffleButton = findViewById(R.id.shuffle)
         rotateButton = findViewById(R.id.rotate)
+        backButton = findViewById(R.id.btn_back)
 
         songTitleTextView.text = songTitle
         if (songImageResId != 0) {
@@ -65,6 +68,9 @@ class PlaySongActivity : ComponentActivity() {
 
         nextButton.setOnClickListener {
             // Implement skipping to the next song
+        }
+        backButton.setOnClickListener {
+            finish()
         }
 
         previousButton.setOnClickListener {
