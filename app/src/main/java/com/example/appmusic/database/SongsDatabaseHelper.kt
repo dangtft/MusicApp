@@ -10,8 +10,8 @@ import com.example.appmusic.R
 class SongsDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
-        const val DATABASE_NAME = "MusicDatabase.db"
-        const val DATABASE_VERSION = 1
+        const val DATABASE_NAME = "music.db"
+        const val DATABASE_VERSION = 2
 
         // Table Names
         const val TABLE_ALBUMS = "Albums"
@@ -44,7 +44,7 @@ class SongsDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
         val createSongsTable = """
             CREATE TABLE $TABLE_SONGS (
                 $COLUMN_SONG_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                $COLUMN_SONG_NAME TEXT NOT NULL,
+                $COLUMN_SONG_NAME TEXT ,
                 $COLUMN_SONG_ARTIST TEXT,
                 $COLUMN_SONG_DURATION INTEGER,
                 $COLUMN_SONG_FILE_RES_ID INTEGER,
@@ -66,16 +66,20 @@ class SongsDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
     }
 
     // Insert a new album into the database
-    fun insertAlbum(db: SQLiteDatabase, albumName: String, albumImageResId: Int): Int {
+    fun insertAlbum(albumName: String, albumImageResId: Int): Long {
+        val db = writableDatabase
         val values = ContentValues().apply {
             put(COLUMN_ALBUM_NAME, albumName)
             put(COLUMN_ALBUM_IMAGE_RES_ID, albumImageResId)
         }
-        return db.insert(TABLE_ALBUMS, null, values).toInt()
+        val albumId = db.insert(TABLE_ALBUMS, null, values)
+        db.close()
+        return albumId
     }
 
     // Insert a new song into the database
-    fun insertSong(db: SQLiteDatabase, songName: String, artist: String, duration: Int, albumId: Int, songFileResId: Int, songImageResId: Int): Int {
+    fun insertSong(songName: String, artist: String, duration: Int, albumId: Long, songFileResId: Int, songImageResId: Int): Long {
+        val db = writableDatabase
         val values = ContentValues().apply {
             put(COLUMN_SONG_NAME, songName)
             put(COLUMN_SONG_ARTIST, artist)
@@ -84,26 +88,29 @@ class SongsDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
             put(COLUMN_SONG_FILE_RES_ID, songFileResId)
             put(COLUMN_SONG_IMAGE_RES_ID, songImageResId)
         }
-        return db.insert(TABLE_SONGS, null, values).toInt()
+        val songId = db.insert(TABLE_SONGS, null, values)
+        db.close()
+        return songId
     }
 
 
     // Insert sample data
-    fun insertSampleData(db: SQLiteDatabase) {
-        val albumId1 = insertAlbum(db, "99 + MCK", R.drawable.mck)
-        val albumId2 = insertAlbum(db, "DreAmee", R.drawable.dreamee)
+    fun insertSampleData() {
+        val albumId1 = insertAlbum("99 + MCK", R.drawable.mck)
+        val albumId2 = insertAlbum("DreAmee", R.drawable.dreamee)
 
-        insertSong(db, "Anh đã ổn hơn", "MCK", 194, albumId1, R.raw.anh_da_on_hon, R.drawable.anhdaonhon)
-        insertSong(db, "Chìm sâu", "MCK", 194, albumId1, R.raw.chim_sau, R.drawable.chimsau)
-        insertSong(db, "Tại vì sao", "MCK", 194, albumId1, R.raw.tai_vi_sao, R.drawable.taivisao)
+        insertSong("Anh đã ổn hơn", "MCK", 194, albumId1, R.raw.anh_da_on_hon, R.drawable.anhdaonhon)
+        insertSong("Chìm sâu", "MCK", 194, albumId1, R.raw.chim_sau, R.drawable.chimsau)
+        insertSong("Tại vì sao", "MCK", 194, albumId1, R.raw.tai_vi_sao, R.drawable.taivisao)
 
-        insertSong(db, "Anh nhà ở đâu thế", "Amee", 216, albumId2, R.raw.anh_nha_o_dau_the, R.drawable.anhnhaodauthe)
-        insertSong(db, "Đen đá không đường", "Amee", 216, albumId2, R.raw.den_da_khong_duong, R.drawable.dendakhongduong)
-        insertSong(db, "Yêu thi yêu không yêu thi yêu", "Amee", 216, albumId2, R.raw.yeu_thi_yeu_khong_yeu_thi_yeu, R.drawable.yeuthiyeukyeuthiyeu)
+        insertSong("Anh nhà ở đâu thế", "Amee", 216, albumId2, R.raw.anh_nha_o_dau_the, R.drawable.anhnhaodauthe)
+        insertSong("Đen đá không đường", "Amee", 216, albumId2, R.raw.den_da_khong_duong, R.drawable.dendakhongduong)
+        insertSong("Yêu thì yêu không yêu thì yêu", "Amee", 216, albumId2, R.raw.yeu_thi_yeu_khong_yeu_thi_yeu, R.drawable.yeuthiyeukyeuthiyeu)
     }
 
     // Retrieve all albums from the database
-    fun getAlbums(db: SQLiteDatabase): Cursor {
+    fun getAlbums(): Cursor {
+        val db = readableDatabase
         val query = """
             SELECT $COLUMN_ALBUM_ID,
                    $COLUMN_ALBUM_NAME,
@@ -112,15 +119,18 @@ class SongsDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
         """
         return db.rawQuery(query, null)
     }
+
     // Retrieve all songs from the database
-    public fun getSongs(db: SQLiteDatabase): Cursor {
+    fun getSongs(): Cursor {
+        val db = readableDatabase
         val query = """
             SELECT $COLUMN_SONG_ID,
                    $COLUMN_SONG_NAME, 
                    $COLUMN_SONG_ARTIST,
                    $COLUMN_SONG_DURATION, 
                    $COLUMN_SONG_FILE_RES_ID,
-                   $COLUMN_SONG_IMAGE_RES_ID
+                   $COLUMN_SONG_IMAGE_RES_ID,
+                   $COLUMN_ALBUM_ID_FK
             FROM $TABLE_SONGS
         """.trimIndent()
 

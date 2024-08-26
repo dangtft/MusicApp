@@ -30,7 +30,7 @@ class PlaySongActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_play_song)
 
-        val songTitle = intent.getStringExtra("COLUMN_SONG_NAME") ?: "Unknown Title"
+        val songTitle = intent.getStringExtra("COLUMN_SONG_NAME")
         val artist = intent.getStringExtra("COLUMN_SONG_ARTIST")
         val songFileResId = intent.getIntExtra("COLUMN_SONG_FILE_RES_ID", 0)
         val songImageResId = intent.getIntExtra("COLUMN_SONG_IMAGE_RES_ID", 0)

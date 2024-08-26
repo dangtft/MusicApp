@@ -1,5 +1,6 @@
 package com.example.appmusic
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.database.Cursor
 import android.os.Bundle
@@ -25,10 +26,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appmusic.activity.PlaySongActivity
@@ -49,321 +48,327 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-    @Composable
-    fun MusicAppLayout(databaseHelper: SongsDatabaseHelper) {
-        val context = LocalContext.current
-        val db = remember { databaseHelper.readableDatabase }
 
-        val cursor = remember { databaseHelper.getSongs(db) }
-        val songs by remember { mutableStateOf(cursorToSongs(cursor)) }
+@Composable
+fun MusicAppLayout(databaseHelper: SongsDatabaseHelper) {
+    val context = LocalContext.current
+    val db = remember { databaseHelper.readableDatabase }
 
-        val cursorAlbums = remember { databaseHelper.getAlbums(db) }
-        val albums by remember { mutableStateOf(cursorToAlbums(cursorAlbums)) }
+    // Fetch songs and albums from the database
+    val songs by remember { mutableStateOf(fetchSongs(databaseHelper)) }
+    val albums by remember { mutableStateOf(fetchAlbums(databaseHelper)) }
 
-        Box(
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .padding(bottom = 56.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 80.dp)
-                    .verticalScroll(rememberScrollState())
+            TopHeader()
+
+            SearchBox()
+
+            FavoritesSection(albums)
+
+            MusicListSection(songs, context)
+        }
+        BottomNavigationBar(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(56.dp)
+        )
+
+    }
+
+}
+
+@SuppressLint("ResourceAsColor")
+@Composable
+fun TopHeader() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(R.color.main_grey))
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(60.dp)
+                .border(2.dp, Color.White, shape = RoundedCornerShape(80))
+                .clip(RoundedCornerShape(50))
+                .background(Color.Transparent)
+        ) {
+            IconButton(
+                onClick = { /* TODO: Handle onClick */ },
+                modifier = Modifier.fillMaxSize()
             ) {
-                // Top Header
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = colorResource(id = R.color.main_pink))
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Left button with white circular border
-                    Box(
-                        modifier = Modifier
-                            .size(60.dp)
-                            .border(2.dp, Color.White, shape = RoundedCornerShape(80))
-                            .clip(RoundedCornerShape(50))
-                            .background(Color.Transparent)
-                    ) {
-                        IconButton(
-                            onClick = { /*TODO*/ },
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.music_note),
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(40.dp)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f)) // Spacer to push the right button to the end
-
-                    // Right button with white color
-                    IconButton(
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier.size(60.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.menu_3gach),
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(40.dp)
-                        )
-                    }
-                }
-
-                // Search Box
-                var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 18.dp)
-                        .shadow(8.dp, RoundedCornerShape(24.dp))
-                        .background(Color.LightGray, RoundedCornerShape(24.dp))
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                ) {
-                    BasicTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        decorationBox = { innerTextField ->
-                            if (searchQuery.text.isEmpty()) {
-                                Text("Search for music", color = Color.White)
-                            }
-                            innerTextField()
-                        }
-                    )
-                }
-
-                // Favorites Section
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(160.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .horizontalScroll(rememberScrollState())
-                            .padding(8.dp)
-                            .height(160.dp)
-                    ) {
-                        albums.forEach { album ->
-                            Box(
-                                modifier = Modifier
-                                    .wrapContentSize()
-                                    .size(110.dp, 180.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .border(2.dp, Color.Gray)
-                                    .padding(8.dp)
-                            ) {
-                                Image(
-                                    painter = painterResource(id = album.albumImageResId),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .height(200.dp)
-                                        .size(100.dp)
-                                )
-
-                                // Icon in the top-left corner
-                                Icon(
-                                    painter = painterResource(id = R.drawable.star_solid),
-                                    contentDescription = null,
-                                    tint = Color.Blue,
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .align(Alignment.TopStart)
-                                        .padding(4.dp)
-                                        .border(
-                                            2.dp,
-                                            Color.Blue,
-                                            shape = RoundedCornerShape(80)
-                                        )
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(20.dp))
-                        }
-                    }
-                }
-
-                // Music List Section
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 10.dp)
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 30.dp,
-                                bottomStart = 30.dp
-                            )
-                        )
-                        .background(colorResource(id = R.color.main_blue))
-                        .padding(10.dp)
-                ) {
-                    Text(
-                        text = "MUSIC LIST",
-                        fontSize = 20.sp,
-                        color = Color.White
-                    )
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                ) {
-                    songs.forEach { song ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 10.dp)
-                                .padding(vertical = 10.dp)
-                                .clickable {
-                                    // Navigate to PlaySongActivity with the selected song
-                                    val intent =
-                                        Intent(context, PlaySongActivity::class.java).apply {
-                                            putExtra("COLUMN_SONG_NAME", song.songName)
-                                            putExtra("COLUMN_SONG_ARTIST", song.artist)
-                                            putExtra("COLUMN_SONG_DURATION", song.duration)
-                                            putExtra("COLUMN_SONG_FILE_RES_ID", song.songFileResId)
-                                            putExtra("COLUMN_SONG_IMAGE_RES_ID", song.imageResId)
-                                        }
-                                    context.startActivity(intent)
-                                }
-                        ) {
-                            Icon(
-                                painter = painterResource(id = song.imageResId),
-                                contentDescription = null,
-                                tint = colorResource(id = R.color.main_blue),
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .padding(top = 8.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = song.songName,
-                                    fontSize = 16.sp,
-                                    color = colorResource(id = R.color.main_pink),
-                                    modifier = Modifier.padding(8.dp)
-                                )
-                                Text(
-                                    text = song.duration.toString(), // Display song duration
-                                    fontSize = 14.sp,
-                                    color = Color.Gray,
-                                    modifier = Modifier.padding(8.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(60.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = song.duration.toString(), // Display song duration
-                                    fontSize = 26.sp,
-                                    color = Color.Gray,
-                                    modifier = Modifier.padding(top = 10.dp)
-                                )
-                            }
-                            Icon(
-                                Icons.Default.Star,
-                                contentDescription = null,
-                                tint = colorResource(id = R.color.main_blue),
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .padding(top = 10.dp)
-                            )
-                        }
-                    }
-                }
+                Icon(
+                    painter = painterResource(id = R.drawable.music_note),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(40.dp)
+                )
             }
+        }
 
-            // Navigation Bar
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .shadow(8.dp, RoundedCornerShape(50.dp)) // Add shadow here
-                    .clip(RoundedCornerShape(50.dp))
-                    .background(color = colorResource(id = R.color.white))
-                    .align(Alignment.BottomCenter) // Position at the bottom
-            ) {
-                var selectedIndex by remember { mutableStateOf(0) }
-                NavigationBar(
-                    containerColor = colorResource(id = R.color.white),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    NavigationBarItem(
-                        icon = {
-                            Icon(
-                                Icons.Default.Home,
-                                contentDescription = "Home",
-                                tint = colorResource(id = R.color.main_blue),
-                                modifier = Modifier.size(40.dp)
-                            )
-                        },
-                        selected = selectedIndex == 0,
-                        onClick = { selectedIndex = 0 }
-                    )
-                    NavigationBarItem(
-                        icon = {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = "Search",
-                                tint = colorResource(id = R.color.main_blue),
-                                modifier = Modifier.size(40.dp)
-                            )
-                        },
-                        selected = selectedIndex == 1,
-                        onClick = { selectedIndex = 1 }
-                    )
-                    NavigationBarItem(
-                        icon = {
-                            Icon(
-                                painterResource(id = R.drawable.star_solid),
-                                contentDescription = "Star",
-                                tint = colorResource(id = R.color.main_blue),
-                                modifier = Modifier.size(40.dp)
-                            )
-                        },
-                        selected = selectedIndex == 2,
-                        onClick = { selectedIndex = 2 }
+        Spacer(modifier = Modifier.weight(1f))
+
+        IconButton(
+            onClick = { /* TODO: Handle onClick */ },
+            modifier = Modifier.size(60.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.menu_3gach),
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(40.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun SearchBox() {
+    var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 18.dp)
+            .shadow(8.dp, RoundedCornerShape(24.dp))
+            .background(Color.LightGray, RoundedCornerShape(24.dp))
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        BasicTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            modifier = Modifier.fillMaxWidth(),
+            decorationBox = { innerTextField ->
+                if (searchQuery.text.isEmpty()) {
+                    Text("Search for music", color = Color.Gray)
+                }
+                innerTextField()
+            }
+        )
+    }
+}
+
+@Composable
+fun FavoritesSection(albums: List<Album>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(160.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(8.dp)
+                .height(160.dp)
+        ) {
+            albums.forEach { album ->
+                AlbumItem(album)
+                Spacer(modifier = Modifier.width(20.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun AlbumItem(album: Album) {
+    Box(
+        modifier = Modifier
+            .wrapContentSize()
+            .size(110.dp, 180.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .border(2.dp, Color.Gray)
+            .padding(8.dp)
+    ) {
+        Image(
+            painter = painterResource(id = album.albumImageResId),
+            contentDescription = null,
+            modifier = Modifier
+                .height(200.dp)
+                .size(100.dp)
+        )
+
+        Icon(
+            painter = painterResource(id = R.drawable.star_solid),
+            contentDescription = null,
+            tint = Color.Blue,
+            modifier = Modifier
+                .size(30.dp)
+                .align(Alignment.TopStart)
+                .padding(4.dp)
+                .border(2.dp, Color.Blue, shape = RoundedCornerShape(80))
+        )
+    }
+}
+
+@Composable
+fun MusicListSection(songs: List<Song>, context: android.content.Context) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    ) {
+        Text(
+            text = "MUSIC LIST",
+            fontSize = 20.sp,
+            color = Color.White,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF0000FF)) // Replace with your color resource
+                .padding(10.dp)
+                .clip(RoundedCornerShape(topStart = 30.dp, bottomStart = 30.dp))
+        )
+
+        songs.forEach { song ->
+            SongItem(song, context)
+        }
+    }
+}
+
+@Composable
+fun SongItem(song: Song, context: android.content.Context) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp)
+            .clickable {
+                val intent = Intent(context, PlaySongActivity::class.java).apply {
+                    putExtra("COLUMN_SONG_NAME", song.songName)
+                    putExtra("COLUMN_SONG_ARTIST", song.artist)
+                    putExtra("COLUMN_SONG_DURATION", song.duration)
+                    putExtra("COLUMN_SONG_FILE_RES_ID", song.songFileResId)
+                    putExtra("COLUMN_SONG_IMAGE_RES_ID", song.imageResId)
+                    putExtra("COLUMN_ALBUM_ID_FK", song.albumId)
+                }
+                context.startActivity(intent)
+            }
+    ) {
+        Image(
+            painter = painterResource(id = song.imageResId),
+            contentDescription = null,
+            modifier = Modifier
+                .size(50.dp)
+                .padding(top = 8.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = song.songName,
+                fontSize = 16.sp,
+                color = Color(0xFFF3C4E4), // Replace with your color resource
+                modifier = Modifier.padding(8.dp)
+            )
+            Text(
+                text = song.artist, // Display song artist
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(60.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = song.duration.toString(), // Display song duration
+                fontSize = 26.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(top = 10.dp)
+            )
+        }
+        Icon(
+            Icons.Default.Star,
+            contentDescription = null,
+            tint = Color(0xFF0000FF), // Replace with your color resource
+            modifier = Modifier
+                .size(40.dp)
+                .padding(top = 10.dp)
+        )
+    }
+}
+
+@Composable
+fun BottomNavigationBar(modifier: Modifier = Modifier) {
+    var selectedIndex by remember { mutableStateOf(0) }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .shadow(8.dp, RoundedCornerShape(50.dp))
+            .clip(RoundedCornerShape(50.dp))
+            .background(Color.White)
+            .padding(4.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            val icons = listOf(
+                Icons.Default.Home,
+                Icons.Default.Search,
+                Icons.Default.Favorite,
+                Icons.Default.AccountCircle
+            )
+            icons.forEachIndexed { index, icon ->
+                IconButton(onClick = { selectedIndex = index }) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = if (selectedIndex == index) Color.Blue else Color.Gray
                     )
                 }
             }
         }
     }
+}
 
-
-    private fun cursorToSongs(cursor: Cursor): List<Song> {
-        val songs = mutableListOf<Song>()
-        while (cursor.moveToNext()) {
-            val id = cursor.getInt(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_SONG_ID))
-            val title = cursor.getString(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_SONG_NAME))
-            val artist = cursor.getString(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_SONG_ARTIST))
-            val duration = cursor.getInt(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_SONG_DURATION))
-            val songResId = cursor.getInt(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_SONG_FILE_RES_ID))
-            val imageResId = cursor.getInt(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_SONG_IMAGE_RES_ID))
-            val albumId = cursor.getInt(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_ALBUM_ID))
-            songs.add(Song(id, title,artist, duration,songResId, imageResId,albumId))
-        }
-        cursor.close()
-        return songs
+fun fetchSongs(databaseHelper: SongsDatabaseHelper): List<Song> {
+    val songList = mutableListOf<Song>()
+    val db = databaseHelper.readableDatabase
+    val cursor: Cursor = db.rawQuery("SELECT * FROM Songs", null)
+    if (cursor.moveToFirst()) {
+        do {
+            val song = Song(
+                id = cursor.getInt(cursor.getColumnIndexOrThrow("song_id")),
+                songName = cursor.getString(cursor.getColumnIndexOrThrow("song_name")),
+                artist = cursor.getString(cursor.getColumnIndexOrThrow("artist")),
+                duration = cursor.getInt(cursor.getColumnIndexOrThrow("duration")),
+                songFileResId = cursor.getInt(cursor.getColumnIndexOrThrow("song_file_res_id")),
+                imageResId = cursor.getInt(cursor.getColumnIndexOrThrow("song_image_res_id")),
+                albumId = cursor.getInt(cursor.getColumnIndexOrThrow("album_id_fk"))
+            )
+            songList.add(song)
+        } while (cursor.moveToNext())
     }
-    private fun cursorToAlbums(cursor: Cursor): List<Album> {
-        val albums = mutableListOf<Album>()
-        while (cursor.moveToNext()) {
-            val id = cursor.getInt(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_ALBUM_ID))
-            val name = cursor.getString(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_ALBUM_NAME))
-            val coverImageResId = cursor.getInt(cursor.getColumnIndexOrThrow(SongsDatabaseHelper.COLUMN_ALBUM_IMAGE_RES_ID))
-            albums.add(Album(id, name, coverImageResId))
-        }
-        cursor.close()
-        return albums
+    cursor.close()
+    db.close()
+    return songList
+}
+
+fun fetchAlbums(databaseHelper: SongsDatabaseHelper): List<Album> {
+    val albumList = mutableListOf<Album>()
+    val db = databaseHelper.readableDatabase
+    val cursor: Cursor = db.rawQuery("SELECT * FROM Albums", null)
+    if (cursor.moveToFirst()) {
+        do {
+            val album = Album(
+                id = cursor.getInt(cursor.getColumnIndexOrThrow("album_id")),
+                albumName = cursor.getString(cursor.getColumnIndexOrThrow("album_name")),
+                albumImageResId = cursor.getInt(cursor.getColumnIndexOrThrow("album_image_res_id"))
+            )
+            albumList.add(album)
+        } while (cursor.moveToNext())
     }
-
-
-
+    cursor.close()
+    db.close()
+    return albumList
+}
