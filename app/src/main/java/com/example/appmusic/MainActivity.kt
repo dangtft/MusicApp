@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appmusic.activity.PlaySongActivity
+import com.example.appmusic.activity.ProfileActivity
 import com.example.appmusic.database.Album
 import com.example.appmusic.database.Song
 import com.example.appmusic.database.SongsDatabaseHelper
@@ -58,32 +59,34 @@ fun MusicAppLayout(databaseHelper: SongsDatabaseHelper) {
     val songs by remember { mutableStateOf(fetchSongs(databaseHelper)) }
     val albums by remember { mutableStateOf(fetchAlbums(databaseHelper)) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        Column(
+    Scaffold(
+        topBar = { TopHeader() },
+        bottomBar = {
+            BottomNavigationBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            )
+        }
+    ) { paddingValues ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 56.dp)
-                .verticalScroll(rememberScrollState())
+                .background(Color.White)
+                .padding(paddingValues)
         ) {
-            TopHeader()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                SearchBox()
 
-            SearchBox()
+                FavoritesSection(albums)
 
-            FavoritesSection(albums)
-
-            MusicListSection(songs, context)
+                MusicListSection(songs, context)
+            }
         }
-        BottomNavigationBar(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(56.dp)
-        )
-
     }
 
 }
@@ -91,6 +94,10 @@ fun MusicAppLayout(databaseHelper: SongsDatabaseHelper) {
 @SuppressLint("ResourceAsColor")
 @Composable
 fun TopHeader() {
+    var isExpanded by remember {
+        mutableStateOf(false)
+    }
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -106,7 +113,7 @@ fun TopHeader() {
                 .background(Color.Transparent)
         ) {
             IconButton(
-                onClick = { /* TODO: Handle onClick */ },
+                onClick = {},
                 modifier = Modifier.fillMaxSize()
             ) {
                 Icon(
@@ -121,7 +128,7 @@ fun TopHeader() {
         Spacer(modifier = Modifier.weight(1f))
 
         IconButton(
-            onClick = { /* TODO: Handle onClick */ },
+            onClick = { isExpanded = true },
             modifier = Modifier.size(60.dp)
         ) {
             Icon(
@@ -130,6 +137,19 @@ fun TopHeader() {
                 tint = Color.White,
                 modifier = Modifier.size(40.dp)
             )
+            DropdownMenu(
+                expanded = isExpanded,
+                onDismissRequest = { isExpanded = false}
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Profile")},
+                    onClick = {
+                    isExpanded = false
+                    val intent = Intent(context, ProfileActivity::class.java)
+                    context.startActivity((intent))
+                })
+
+            }
         }
     }
 }
@@ -254,6 +274,11 @@ fun SongItem(song: Song, context: android.content.Context) {
                 context.startActivity(intent)
             }
     ) {
+        fun formatDurition(seconds:Int):String{
+            val minutes = seconds/60
+            val remainingSeconds = seconds % 60
+            return String.format("%d:%02d",minutes,remainingSeconds)
+        }
         Image(
             painter = painterResource(id = song.imageResId),
             contentDescription = null,
@@ -266,7 +291,7 @@ fun SongItem(song: Song, context: android.content.Context) {
             Text(
                 text = song.songName,
                 fontSize = 16.sp,
-                color = Color(0xFFF3C4E4), // Replace with your color resource
+                color = Color(0xFFF3C4E4),
                 modifier = Modifier.padding(8.dp)
             )
             Text(
@@ -279,7 +304,7 @@ fun SongItem(song: Song, context: android.content.Context) {
         Spacer(modifier = Modifier.width(60.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = song.duration.toString(), // Display song duration
+                text = formatDurition( song.duration),
                 fontSize = 26.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(top = 10.dp)
@@ -288,7 +313,7 @@ fun SongItem(song: Song, context: android.content.Context) {
         Icon(
             Icons.Default.Star,
             contentDescription = null,
-            tint = Color(0xFF0000FF), // Replace with your color resource
+            tint = Color(0xFF0000FF),
             modifier = Modifier
                 .size(40.dp)
                 .padding(top = 10.dp)
